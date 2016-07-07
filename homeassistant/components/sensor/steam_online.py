@@ -5,7 +5,7 @@ For more details about this platform, please refer to the documentation at
 https://home-assistant.io/components/sensor.steam_online/
 """
 from homeassistant.helpers.entity import Entity
-from homeassistant.const import (ATTR_ENTITY_PICTURE, CONF_API_KEY)
+from homeassistant.const import CONF_API_KEY
 
 ICON = 'mdi:steam'
 
@@ -24,8 +24,10 @@ def setup_platform(hass, config, add_devices, discovery_info=None):
 
 class SteamSensor(Entity):
     """A class for the Steam account."""
+
     # pylint: disable=abstract-method
     def __init__(self, account, steamod):
+        """Initialize the sensor."""
         self._steamod = steamod
         self._account = account
         self.update()
@@ -49,6 +51,10 @@ class SteamSensor(Entity):
     def update(self):
         """Update device state."""
         self._profile = self._steamod.user.profile(self._account)
+        if self._profile.current_game[2] is None:
+            self._game = 'None'
+        else:
+            self._game = self._profile.current_game[2]
         self._state = {
             1: 'Online',
             2: 'Busy',
@@ -61,9 +67,12 @@ class SteamSensor(Entity):
     @property
     def device_state_attributes(self):
         """Return the state attributes."""
-        return {
-            ATTR_ENTITY_PICTURE: self._profile.avatar_medium
-        }
+        return {'Game': self._game}
+
+    @property
+    def entity_picture(self):
+        """Avatar of the account."""
+        return self._profile.avatar_medium
 
     @property
     def icon(self):

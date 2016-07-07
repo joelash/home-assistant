@@ -4,7 +4,6 @@ Support for the Twitch stream status.
 For more details about this platform, please refer to the documentation at
 https://home-assistant.io/components/sensor.twitch/
 """
-from homeassistant.const import ATTR_ENTITY_PICTURE
 from homeassistant.helpers.entity import Entity
 
 STATE_STREAMING = 'streaming'
@@ -19,16 +18,17 @@ DOMAIN = 'twitch'
 
 # pylint: disable=unused-argument
 def setup_platform(hass, config, add_devices, discovery_info=None):
-    """Sets up the Twitch platform."""
+    """Setup the Twitch platform."""
     add_devices(
         [TwitchSensor(channel) for channel in config.get('channels', [])])
 
 
 class TwitchSensor(Entity):
-    """Represents an Twitch channel."""
+    """Representation of an Twitch channel."""
 
     # pylint: disable=abstract-method
     def __init__(self, channel):
+        """Initialize the sensor."""
         self._channel = channel
         self._state = STATE_OFFLINE
         self._preview = None
@@ -43,13 +43,18 @@ class TwitchSensor(Entity):
 
     @property
     def name(self):
-        """Returns the name of the sensor."""
+        """Return the name of the sensor."""
         return self._channel
 
     @property
     def state(self):
-        """State of the sensor."""
+        """Return the state of the sensor."""
         return self._state
+
+    @property
+    def entity_picture(self):
+        """Return preview of current game."""
+        return self._preview
 
     # pylint: disable=no-member
     def update(self):
@@ -62,16 +67,16 @@ class TwitchSensor(Entity):
             self._preview = stream.get('preview').get('small')
             self._state = STATE_STREAMING
         else:
+            self._preview = None
             self._state = STATE_OFFLINE
 
     @property
     def device_state_attributes(self):
-        """Returns the state attributes."""
+        """Return the state attributes."""
         if self._state == STATE_STREAMING:
             return {
                 ATTR_GAME: self._game,
                 ATTR_TITLE: self._title,
-                ATTR_ENTITY_PICTURE: self._preview
             }
 
     @property

@@ -8,7 +8,7 @@ import logging
 from collections import namedtuple
 
 import homeassistant.util as util
-from homeassistant.const import TEMP_CELCIUS
+from homeassistant.const import TEMP_CELSIUS
 from homeassistant.helpers.entity import Entity
 
 DatatypeDescription = namedtuple("DatatypeDescription", ['name', 'unit'])
@@ -18,14 +18,14 @@ REQUIREMENTS = ['tellcore-py==1.1.2']
 
 # pylint: disable=unused-argument
 def setup_platform(hass, config, add_devices, discovery_info=None):
-    """Sets up Tellstick sensors."""
+    """Setup Tellstick sensors."""
     import tellcore.telldus as telldus
     import tellcore.constants as tellcore_constants
 
     sensor_value_descriptions = {
         tellcore_constants.TELLSTICK_TEMPERATURE:
         DatatypeDescription(
-            'temperature', config.get('temperature_scale', TEMP_CELCIUS)),
+            'temperature', config.get('temperature_scale', TEMP_CELSIUS)),
 
         tellcore_constants.TELLSTICK_HUMIDITY:
         DatatypeDescription('humidity', '%'),
@@ -77,9 +77,10 @@ def setup_platform(hass, config, add_devices, discovery_info=None):
 
 
 class TellstickSensor(Entity):
-    """Represents a Tellstick sensor."""
+    """Representation of a Tellstick sensor."""
 
     def __init__(self, name, sensor, datatype, sensor_info):
+        """Initialize the sensor."""
         self.datatype = datatype
         self.sensor = sensor
         self._unit_of_measurement = sensor_info.unit or None
@@ -88,15 +89,15 @@ class TellstickSensor(Entity):
 
     @property
     def name(self):
-        """Returns the name of the sensor."""
+        """Return the name of the sensor."""
         return self._name
 
     @property
     def state(self):
-        """Returns the state of the sensor."""
+        """Return the state of the sensor."""
         return self.sensor.value(self.datatype).value
 
     @property
     def unit_of_measurement(self):
-        """Unit of measurement of this entity, if any."""
+        """Return the unit of measurement of this entity, if any."""
         return self._unit_of_measurement
